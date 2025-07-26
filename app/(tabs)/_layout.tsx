@@ -1,43 +1,124 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import { COLORS } from "@/constants/colors";
+import { AntDesign, Feather } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import { useEffect, useState } from "react";
+import { Keyboard, View } from "react-native";
+import { Avatar, useTheme } from "react-native-paper";
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+const ActiveIndicator = () => {
+  return (
+    <View
+      style={{
+        height: 4,
+        width: 20,
+        backgroundColor: COLORS.background,
+        borderRadius: 2,
+        marginTop: 8,
+      }}
+    />
+  );
+};
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { colors } = useTheme();
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
+        tabBarHideOnKeyboard: true,
+        tabBarActiveTintColor: colors.background,
+        tabBarInactiveTintColor: colors.outline,
+
+        tabBarStyle: {
+          backgroundColor: colors.primary,
+          borderRadius: 10,
+          borderColor: "transparent",
+          height: 80,
+          display: isKeyboardVisible ? "none" : "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "absolute",
+          marginHorizontal: 10,
+          elevation: 0,
+          marginBottom: 15,
+        },
+        tabBarIconStyle: {
+          marginTop: 20,
+        },
+        tabBarItemStyle: {
+          justifyContent: "center",
+          alignItems: "center",
+        },
+        tabBarLabelStyle: {
+          display: "none",
+        },
+        // tabBarBadgeStyle: {
+        //   color: colors.card,
+        //   backgroundColor: COLORS.border,
+        // },
+      }}
+    >
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: "center" }}>
+              <AntDesign name="home" size={24} color={color} />
+              {focused && <ActiveIndicator />}
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="search"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: "center" }}>
+              <Feather name="search" size={24} color={color} />
+              {focused && <ActiveIndicator />}
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="cart"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: "center" }}>
+              <AntDesign name="shoppingcart" size={24} color={color} />
+              {focused && <ActiveIndicator />}
+            </View>
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarIcon: () => (
+            <Avatar.Image
+              size={32}
+              source={{
+                uri: "https://media.altpress.com/fkdgxpscnt/uploads/2021/10/07/john-doe-interview-part-2.jpg",
+              }}
+            />
+          ),
         }}
       />
     </Tabs>
