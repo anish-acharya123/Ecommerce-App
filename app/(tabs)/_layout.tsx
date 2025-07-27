@@ -1,5 +1,6 @@
 import { COLORS } from "@/constants/colors";
 import { useAuth } from "@/context/AuthContext";
+import { useCartStore } from "@/state/cartStore";
 import { useAppTheme } from "@/theme/paperTheme";
 import { AntDesign, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
@@ -25,6 +26,7 @@ export default function TabLayout() {
   const { colors } = useAppTheme();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const { session, loading } = useAuth();
+  const { cart } = useCartStore((state) => state);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -73,10 +75,6 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           display: "none",
         },
-        // tabBarBadgeStyle: {
-        //   color: colors.card,
-        //   backgroundColor: COLORS.border,
-        // },
       }}
     >
       <Tabs.Screen
@@ -93,6 +91,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="search"
         options={{
+          animation: "none",
           tabBarIcon: ({ color, focused }) => (
             <View style={{ alignItems: "center" }}>
               <Feather name="search" size={24} color={color} />
@@ -104,6 +103,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="cart"
         options={{
+          tabBarBadge: cart.length > 0 ? cart.length : undefined,
           tabBarIcon: ({ color, focused }) => (
             <View style={{ alignItems: "center" }}>
               <AntDesign name="shoppingcart" size={24} color={color} />

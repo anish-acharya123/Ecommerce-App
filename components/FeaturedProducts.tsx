@@ -1,6 +1,9 @@
-import { dummyProducts } from "@/constants/dummydata";
+import { useGetProducts } from "@/services/useGetProducts";
+import { useCartStore } from "@/state/cartStore";
 import { CustomTheme, useAppTheme } from "@/theme/paperTheme";
+import { Product } from "@/types/product.type";
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import {
   FlatList,
@@ -10,17 +13,30 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Loader from "./Loader";
 
-const FeaturedProducts = () => {
+const ProductCard = ({
+  label,
+  data,
+  isLoading,
+}: {
+  label: string;
+  data: Product[] | undefined;
+  isLoading: boolean;
+}) => {
   const { colors } = useAppTheme();
   const styles = createStyles(colors);
-  const randomProducts = dummyProducts
-    .sort(() => 0.5 - Math.random())
-    .slice(0, 6);
+  const { data: products } = useGetProducts();
+  const addToCart = useCartStore((state) => state.addToCart);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+  const randomProducts = data ?? products;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Featured Products</Text>
+      <Text style={styles.heading}>{label}</Text>
       <FlatList
         data={randomProducts}
         columnWrapperStyle={{
@@ -34,20 +50,27 @@ const FeaturedProducts = () => {
         scrollEnabled={false}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <TouchableOpacity
+            onPress={() => router.push(`/products/${item.id}`)}
+            activeOpacity={0.9}
+            style={styles.card}
+          >
             <Image source={{ uri: item.image_url }} style={styles.image} />
             <View style={styles.info}>
               <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.price}>${item.price.toFixed(2)}</Text>
             </View>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => addToCart(item, "M")}
+            >
               <MaterialIcons
                 name="add-shopping-cart"
                 size={24}
                 color={colors.primary}
               />
             </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         )}
         // horizontal
         showsHorizontalScrollIndicator={false}
@@ -72,7 +95,7 @@ const createStyles = (colors: CustomTheme["colors"]) => {
     card: {
       width: 160,
       backgroundColor: colors.card,
-      borderRadius: 12,
+      borderRadius: 5,
       // padding: 10,
       paddingBottom: 10,
       overflow: "hidden",
@@ -113,4 +136,4 @@ const createStyles = (colors: CustomTheme["colors"]) => {
   });
 };
 
-export default FeaturedProducts;
+export default ProductCard;

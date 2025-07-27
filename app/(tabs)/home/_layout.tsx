@@ -1,6 +1,7 @@
 import { ScrollYProvider } from "@/context/ScrollContext";
+import { useSearchStore } from "@/state/searchStore";
 import { CustomTheme, useAppTheme } from "@/theme/paperTheme";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { useRef } from "react";
 import { Animated, Platform, StyleSheet, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,6 +10,7 @@ export default function HomeLayout() {
   const { colors } = useAppTheme();
   const styles = createStyles(colors);
   const scrollY = useRef(new Animated.Value(0)).current;
+  const setSearchTextGlobal = useSearchStore((state) => state.setSearchText);
 
   const headerHeight = scrollY.interpolate({
     inputRange: [0, 100],
@@ -21,6 +23,11 @@ export default function HomeLayout() {
     outputRange: [28, 20],
     extrapolate: "clamp",
   });
+
+  const handleSearchChange = (text: string) => {
+    setSearchTextGlobal(text);
+    router.replace("/search");
+  };
 
   return (
     <ScrollYProvider value={scrollY}>
@@ -39,9 +46,11 @@ export default function HomeLayout() {
                     SASTO BAJAR
                   </Animated.Text>
                   <TextInput
+                    defaultValue=""
                     placeholder="Search..."
                     placeholderTextColor="#aaa"
                     style={styles.input}
+                    onChangeText={handleSearchChange}
                   />
                 </Animated.View>
               </SafeAreaView>

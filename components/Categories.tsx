@@ -1,6 +1,7 @@
 import { dummyProducts } from "@/constants/dummydata";
 import { CustomTheme, useAppTheme } from "@/theme/paperTheme";
 import { Feather } from "@expo/vector-icons"; // Or any icon family
+import { router } from "expo-router";
 import React from "react";
 import {
   FlatList,
@@ -40,7 +41,10 @@ const Categories = () => {
         renderItem={({ item }) => {
           const iconName = categoryIcons[item] || "tag";
           return (
-            <TouchableOpacity style={styles.card} onPress={() => {}}>
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => router.push(`/search?category=${item}`)}
+            >
               <Feather name={iconName} size={24} color={colors.primary} />
               <Text style={styles.label}>{item}</Text>
             </TouchableOpacity>

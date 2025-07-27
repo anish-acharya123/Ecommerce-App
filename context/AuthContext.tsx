@@ -29,7 +29,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Restore session from AsyncStorage
   useEffect(() => {
     const restoreSession = async () => {
       const savedSession = await AsyncStorage.getItem(SESSION_KEY);

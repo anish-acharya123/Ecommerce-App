@@ -1,13 +1,15 @@
 import Categories from "@/components/Categories";
-import FeaturedProducts from "@/components/FeaturedProducts";
+import ProductCard from "@/components/FeaturedProducts";
 import ProductCarousel from "@/components/ProductCarousel";
 import Screen from "@/components/Screen";
 import { useScrollY } from "@/context/ScrollContext";
+import { useGetProducts } from "@/services/useGetProducts";
 import { Animated } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Home = () => {
   const scrollY = useScrollY();
+  const { data: products, isLoading } = useGetProducts();
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
@@ -23,9 +25,17 @@ const Home = () => {
           }}
         >
           <ProductCarousel />
-          <FeaturedProducts />
+          <ProductCard
+            label="Featured Products"
+            data={products?.slice(0, 6)}
+            isLoading={isLoading}
+          />
           <Categories />
-          <FeaturedProducts />
+          <ProductCard
+            label="Latest Product"
+            data={products?.slice(6, 10)}
+            isLoading={isLoading}
+          />
         </Animated.ScrollView>
       </Screen>
     </SafeAreaView>
