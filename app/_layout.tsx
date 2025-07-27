@@ -4,6 +4,8 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
 import { Provider as PaperProvider } from "react-native-paper";
+import { ToastProvider } from "react-native-toast-notifications";
+import "react-native-url-polyfill/auto";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -12,14 +14,16 @@ export default function RootLayout() {
     <PaperProvider theme={colorScheme === "dark" ? darkTheme : lightTheme}>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
       <AuthProvider>
-        <Stack>
-          <Stack.Screen
-            name="(tabs)"
-            options={{
-              headerShown: false,
-            }}
-          />
-        </Stack>
+        <ToastProvider placement="top">
+          <Stack>
+            <Stack.Screen
+              name="(tabs)"
+              options={{
+                headerShown: false,
+              }}
+            />
+          </Stack>
+        </ToastProvider>
       </AuthProvider>
     </PaperProvider>
   );

@@ -1,44 +1,84 @@
+import { ScrollYProvider } from "@/context/ScrollContext";
+import { CustomTheme, useAppTheme } from "@/theme/paperTheme";
 import { Stack } from "expo-router";
-import { StyleSheet, TextInput } from "react-native";
+import { useRef } from "react";
+import { Animated, Platform, StyleSheet, TextInput } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-function SearchHeader() {
-  return (
-    <SafeAreaView style={styles.container}>
-      <TextInput
-        placeholder="Search..."
-        placeholderTextColor="#aaa"
-        style={styles.input}
-      />
-    </SafeAreaView>
-  );
-}
-
 export default function HomeLayout() {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [100, 60],
+    extrapolate: "clamp",
+  });
+
+  const titleFontSize = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [28, 20],
+    extrapolate: "clamp",
+  });
+
   return (
-    <Stack>
-      <Stack.Screen
-        name="index"
-        options={{
-          header: () => <SearchHeader />,
-        }}
-      />
-    </Stack>
+    <ScrollYProvider value={scrollY}>
+      <Stack>
+        <Stack.Screen
+          name="index"
+          options={{
+            header: () => (
+              <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+                <Animated.View
+                  style={[styles.header, { height: headerHeight }]}
+                >
+                  <Animated.Text
+                    style={[styles.title, { fontSize: titleFontSize }]}
+                  >
+                    SASTO BAJAR
+                  </Animated.Text>
+                  <TextInput
+                    placeholder="Search..."
+                    placeholderTextColor="#aaa"
+                    style={styles.input}
+                  />
+                </Animated.View>
+              </SafeAreaView>
+            ),
+          }}
+        />
+      </Stack>
+    </ScrollYProvider>
   );
 }
+const createStyles = (colors: CustomTheme["colors"]) => {
+  return StyleSheet.create({
+    container: {
+      width: "100%",
+      backgroundColor: colors.background,
+    },
+    header: {
+      minHeight: 60,
+      paddingVertical: Platform.OS === "ios" ? 20 : 10,
+      paddingHorizontal: 20,
+      backgroundColor: colors.background,
+      justifyContent: "flex-start",
+    },
 
-const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    backgroundColor: "#fff",
-  },
-  input: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 16,
-  },
-});
+    inner: {
+      paddingBottom: 10,
+    },
+    title: {
+      fontWeight: "bold",
+      color: "#000",
+      marginBottom: 8,
+    },
+    input: {
+      height: 40,
+      borderRadius: 8,
+      backgroundColor: colors.search,
+      paddingHorizontal: 12,
+    },
+  });
+};

@@ -1,9 +1,11 @@
 import { COLORS } from "@/constants/colors";
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { useAuth } from "@/context/AuthContext";
+import { useAppTheme } from "@/theme/paperTheme";
+import { AntDesign, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { useEffect, useState } from "react";
 import { Keyboard, View } from "react-native";
-import { Avatar, useTheme } from "react-native-paper";
+import { Avatar } from "react-native-paper";
 
 const ActiveIndicator = () => {
   return (
@@ -20,8 +22,9 @@ const ActiveIndicator = () => {
 };
 
 export default function TabLayout() {
-  const { colors } = useTheme();
+  const { colors } = useAppTheme();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const { session, loading } = useAuth();
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -36,6 +39,8 @@ export default function TabLayout() {
       hideSubscription.remove();
     };
   }, []);
+
+  if (loading) return null;
 
   return (
     <Tabs
@@ -111,13 +116,26 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarIcon: () => (
-            <Avatar.Image
-              size={32}
-              source={{
-                uri: "https://media.altpress.com/fkdgxpscnt/uploads/2021/10/07/john-doe-interview-part-2.jpg",
-              }}
-            />
+          tabBarIcon: ({ color, focused }) => (
+            <View>
+              {!session ? (
+                <View>
+                  <MaterialCommunityIcons
+                    name="account-circle-outline"
+                    size={24}
+                    color={color}
+                  />
+                  {focused && <ActiveIndicator />}
+                </View>
+              ) : (
+                <Avatar.Image
+                  size={32}
+                  source={{
+                    uri: "https://media.altpress.com/fkdgxpscnt/uploads/2021/10/07/john-doe-interview-part-2.jpg",
+                  }}
+                />
+              )}
+            </View>
           ),
         }}
       />
